@@ -57,9 +57,10 @@ int main (int argc, char* argv[]) {
     nbthreads = atoi(argv[6]);
     granularity = atoi(argv[8]);
     schedule_type = argv[7];
-    
-	omp_set_num_threads(nbthreads); 
-	
+    omp_lock_t writelock;
+	    
+    omp_set_num_threads(nbthreads); 
+    omp_init_lock(&writelock);	
 	
     start = clock();
     
@@ -68,10 +69,11 @@ int main (int argc, char* argv[]) {
     	#pragma omp parallel for schedule(static)
     	for(int i = 0; i <= n-1; i++)
     	{
+			omp_set_lock(&writelock);
 			x_int = (a + (i + 0.5) * ((b - a) / (float)n));
 			x_val = x_val + x_int;
 			switch(func)
-        	{
+        		{
       			case 1: result = f1(x_val, intensity) * ((b - a)/n);
 						break;
         		case 2: result = f2(x_val, intensity) * ((b - a)/n);
@@ -81,7 +83,8 @@ int main (int argc, char* argv[]) {
       	  		case 4: result = f4(x_val, intensity) * ((b - a)/n);
 						break;
           		default: std::cout<<"\nWrong function id"<<std::endl;
-      		}
+      			}
+			omp_unset_lock(&writelock);	
       	}
      }
      else if(strcmp(schedule_type, "dynamic") == 0)
@@ -90,6 +93,7 @@ int main (int argc, char* argv[]) {
     	#pragma omp parallel for schedule(dynamic, granularity)
     	for(int i = 0; i <= n-1; i++)
     	{
+			omp_set_lock(&writelock);
 			x_int = (a + (i + 0.5) * ((b - a) / (float)n));
 			x_val = x_val + x_int;
 			switch(func)
@@ -104,10 +108,12 @@ int main (int argc, char* argv[]) {
 						break;
           		default: std::cout<<"\nWrong function id"<<std::endl;
       		}
+	omp_unset_lock(&writelock);
       	}
      }
 	
     end = clock();
+    omp_destroy_lock(&writelock);
     cpu_time = ((double)(end - start)) / CLOCKS_PER_SEC;
     std::cout<<result<<std::endl;
     std::cerr<<cpu_time<<std::endl;
