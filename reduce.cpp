@@ -44,13 +44,14 @@ int main (int argc, char* argv[]) {
  
 
   int * arr = new int [atoi(argv[1])];
+  omp_sched_t kind;
 
   generateReduceData (arr, atoi(argv[1]));
   
   int nbthreads = atoi(argv[2]);
   omp_set_num_threads(nbthreads); 
   
-  int min_val;
+  int sum;
   int n = atoi(argv[1]);
   
   char *schedule_type = argv[3];
@@ -58,36 +59,33 @@ int main (int argc, char* argv[]) {
   
   unsigned long granularity = atoi(argv[4]);
   
-  min_val = arr[0];
+  sum = 0;
  // arr[0] = 0;
   auto clock_start = std::chrono::system_clock::now();
   if(strcmp(schedule_type , "static") == 0)
   {
-  
-  	#pragma omp parallel for reduction (min : min_val) schedule(static)
+  	kind = (omp_sched_t)1;
+  	omp_set_schedule(kind, granularity);
+  	#pragma omp parallel for reduction (+:sum)
   	for (int i = 1 ; i < n; i++)
   	{
-  		if(arr[i] < min_val)
-  		{
-  			min_val = arr[i];
-  		}
+  			sum += arr[i];
   	}
   }
   else if(strcmp(schedule_type, "dynamic") == 0)
   {
-  	#pragma omp parallel for reduction (min : min_val) schedule(dynamic, granularity)
+  	kind = (omp_sched_t)2;
+  	omp_set_schedule(kind, granularity);
+  	#pragma omp parallel for reduction (+ : sum)
   	for(int i = 0; i < n; i++)
   	{
-  		if(arr[i] < min_val)
-  		{
-  			min_val = arr[i];
-  		}
+  			sum += arr[i];
   	}
   }
   
   auto clock_end = std::chrono::system_clock::now();
   std::chrono::duration<double>diff = clock_end - clock_start;
-  std::cout<<"min val"<<min_val<<std::endl;
+  std::cout<<sum<<std::endl;
   /*for(int i = 0; i < n; i++)
   {
   	std::cout<<arr[i]<<std::endl;
