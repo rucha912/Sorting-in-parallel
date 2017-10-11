@@ -5,6 +5,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <chrono>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,6 +41,80 @@ int main (int argc, char* argv[]) {
     std::cerr<<"Usage: "<<argv[0]<<" <functionid> <a> <b> <n> <intensity> <nbthreads> <scheduling> <granularity>"<<std::endl;
     return -1;
   }
+  
+  float result, x_val=0, x_int;
+    clock_t start, end;
+    float a, b;
+    unsigned long n;
+    double cpu_time;
+    int func, intensity, nbthreads, granularity;
+    char *schedule_type;
+    func = atoi(argv[1]);
+    a = atof(argv[2]);
+    b = atof(argv[3]);
+    n = atof(argv[4]);
+    intensity = atoi(argv[5]);
+    nbthreads = atoi(argv[6]);
+    granularity = atoi(argv[8]);
+    schedule_type = argv[7];
+    
+	omp_set_num_threads(nbthreads); 
+	
+	
+    start = clock();
+    
+    if( strcmp (schedule_type, "static") == 0)
+    {
+    	#pragma omp parallel for schedule(static)
+    	for(int i = 0; i <= n-1; i++)
+    	{
+			x_int = (a + (i + 0.5) * ((b - a) / (float)n));
+			x_val = x_val + x_int;
+			switch(func)
+        	{
+      			case 1: result = f1(x_val, intensity) * ((b - a)/n);
+						break;
+        		case 2: result = f2(x_val, intensity) * ((b - a)/n);
+						break;
+          		case 3: result = f3(x_val, intensity) * ((b - a)/n);
+						break;
+      	  		case 4: result = f4(x_val, intensity) * ((b - a)/n);
+						break;
+          		default: std::cout<<"\nWrong function id"<<std::endl;
+      		}
+      	}
+     }
+     else if(strcmp(schedule_type, "dynamic") == 0)
+     {
+     	
+    	#pragma omp parallel for schedule(dynamic, granularity)
+    	for(int i = 0; i <= n-1; i++)
+    	{
+			x_int = (a + (i + 0.5) * ((b - a) / (float)n));
+			x_val = x_val + x_int;
+			switch(func)
+        	{
+      			case 1: result = f1(x_val, intensity) * ((b - a)/n);
+						break;
+        		case 2: result = f2(x_val, intensity) * ((b - a)/n);
+						break;
+          		case 3: result = f3(x_val, intensity) * ((b - a)/n);
+						break;
+      	  		case 4: result = f4(x_val, intensity) * ((b - a)/n);
+						break;
+          		default: std::cout<<"\nWrong function id"<<std::endl;
+      		}
+      	}
+     }
+	
+    end = clock();
+    cpu_time = ((double)(end - start)) / CLOCKS_PER_SEC;
+    std::cout<<result<<std::endl;
+    std::cerr<<cpu_time<<std::endl;
+  
+  return 0;
+  
+  
 
   return 0;
 }

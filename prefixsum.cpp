@@ -47,7 +47,7 @@ int main (int argc, char* argv[]) {
 
 
 
-  checkPrefixSumResult(arr, atoi(argv[1]));
+  checkPrefixSumResult(pr, atoi(argv[1]));
   
   delete[] arr;
 

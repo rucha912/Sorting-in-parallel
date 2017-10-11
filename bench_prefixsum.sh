@@ -18,12 +18,13 @@ fi
 N="1000000000"
 THREADS="1 2 4 8 12 16"
 
-make prefixsum
+make prefixsum prefixsum_seq
 
 #TODO prefix sum should really run against a true sequential code.
 
 for n in $N;
 do
+    ./prefixsum_seq $n  >/dev/null 2> ${RESULTDIR}/prefixsum_${n}
     for t in $THREADS;
     do
 	./prefixsum $n $t  >/dev/null 2> ${RESULTDIR}/prefixsum_${n}_${t}
@@ -36,7 +37,7 @@ do
     do
 	#output in format "thread seq par"
 	echo ${t} \
-	     $(cat ${RESULTDIR}/prefixsum_${n}_1
+	     $(cat ${RESULTDIR}/prefixsum_${n}
 	     $(cat ${RESULTDIR}/prefixsum_${n}_${t})
     done   > ${RESULTDIR}/speedup_prefixsum_${n}
 done

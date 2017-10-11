@@ -5,7 +5,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-
+#include <algorithm>
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,8 +34,8 @@ int main (int argc, char* argv[]) {
     }
   }
   
-  if (argc < 5) {
-    std::cerr<<"Usage: "<<argv[0]<<" <n> <nbthreads> <scheduling> <granularity>"<<std::endl;
+  if (argc < 3) {
+    std::cerr<<"Usage: "<<argv[0]<<" <n> <nbthreads>"<<std::endl;
     return -1;
   }
 
@@ -45,8 +45,8 @@ int main (int argc, char* argv[]) {
   
   //write code here
 
-
-
+     
+  
   checkMergeSortResult (arr, atoi(argv[1]));
   
   delete[] arr;
