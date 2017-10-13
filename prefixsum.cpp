@@ -39,15 +39,34 @@ int main (int argc, char* argv[]) {
     return -1;
   }
 
-  int * arr = new int [atoi(argv[1])];
+  int n = atoi(argv[1]);
+  int nbthreads = atoi(argv[2]);
+  int * arr = new int [n];
+  int* newarr = new int [n+1];
 
-  generatePrefixSumData (arr, atoi(argv[1]));
+  generatePrefixSumData (arr, n);
+  omp_set_num_threads(nbthreads);
   
-  //write code here
+  #pragma omp parallel 
+  for ( int i = 0; i < n+1; i++)
+  {
+  	newarr[i] = newarr[i] + arr[i];
+  }
+
+	
+  for(int i = 0; i<n; i++)
+  {
+  	std::cout<<arr[i]<<std::endl;
+  }
+  std::cout<<"newArray"<<std::endl;
+  for(int i = 0; i<n; i++)
+  {
+  	std::cout<<newarr[i]<<std::endl;
+  }
 
 
 
-  checkPrefixSumResult(pr, atoi(argv[1]));
+  checkPrefixSumResult(newarr, atoi(argv[1]));
   
   delete[] arr;
 

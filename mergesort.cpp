@@ -6,6 +6,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <algorithm>
+#include <math.h>
+#include <stdlib.h>
+#include <chrono>
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,13 +46,89 @@ int main (int argc, char* argv[]) {
 
   generateMergeSortData (arr, atoi(argv[1]));
   
-  //write code here
+  int nbthreads = atoi(argv[2]);
+  int n = atoi(argv[1]);
+  
+  int current, left, mid, right, temp_left, temp_right, temp_mid, nl, nr, i, j, k;
+  int *left_arr, *right_arr;
+  
+  omp_set_num_threads(nbthreads);
+  
+  
+  std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
+  
+  for( current = 1; current <= n-1; current = current * 2)
+  {
+  	//#pragma omp parallel for
+  	for(left = 0; left < n-1; left += 2*current)
+  	{
+  		mid = std::min(left + current -1, n-1);
+  		right = std::min(left + current*2 - 1, n-1);
+  		temp_left = left;
+  		temp_mid = mid;
+  		temp_right = right;
+  		
+  		nl = temp_mid - temp_left + 1;
+  		nr = temp_right - temp_mid;
+  		
+  		left_arr = (int *)malloc(sizeof(int)*nl);
+  		right_arr = (int *)malloc(sizeof(int)*nr); 
+  		
+  		//#pragma omp parallel for
+  		for( i = 0; i < nl; i++)
+  		{
+  			left_arr[i] = arr[temp_left + i];
+		}
+		//#pragma omp parallel for
+		for( i = 0; i < nl; i++)
+  		{
+  			right_arr[i] = arr[1 + temp_mid + i];
+		}
+		i = 0;
+		j = 0;
+		k = temp_left;
+		
+		while(i < nl && j < nr)
+		{
+			if(left_arr[i] < right_arr[j])
+			{
+				arr[k] = left_arr[i];
+				i++;
+			}
+			else
+			{
+				arr[k] = right_arr[j];
+				j++;
+			}
+			k++;
+		}
+		while(i < nl)
+		{
+			arr[k] = left_arr[i];
+			i++;
+			k++;
+		}
+		while(j < nr)
+		{
+			arr[k] = right_arr[j];
+			j++;
+			k++;
+		}
+  	}
+  	delete[] left_arr;
+  	delete[] right_arr;
+  }
+  
+  std::chrono::time_point<std::chrono::system_clock> end = std::chrono::system_clock::now();
 
-     
+  std::chrono::duration<double> elapsed_seconds = end-start;
+  
+  std::cerr<<elapsed_seconds.count()<<std::endl;
   
   checkMergeSortResult (arr, atoi(argv[1]));
   
   delete[] arr;
+  
 
   return 0;
 }

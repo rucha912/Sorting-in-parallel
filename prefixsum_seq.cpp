@@ -53,6 +53,16 @@ int main (int argc, char* argv[]) {
   std::chrono::duration<double> elapsed_seconds = end-start;
   
   std::cerr<<elapsed_seconds.count()<<std::endl;
+  
+  for(int i = 0; i<n; i++)
+  {
+  	std::cout<<arr[i]<<std::endl;
+  }
+  std::cout<<"newArray"<<std::endl;
+  for(int i = 0; i<n; i++)
+  {
+  	std::cout<<newarr[i]<<std::endl;
+  }
 
   checkPrefixSumResult(newarr, n);
   
