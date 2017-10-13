@@ -49,8 +49,7 @@ int main (int argc, char* argv[]) {
   int nbthreads = atoi(argv[2]);
   int n = atoi(argv[1]);
   
-  int current, left, mid, right, temp_left, temp_right, temp_mid, nl, nr, i, j, k;
-  int *left_arr, *right_arr;
+  int current, left;
   
   omp_set_num_threads(nbthreads);
   
@@ -59,27 +58,31 @@ int main (int argc, char* argv[]) {
   
   for( current = 1; current <= n-1; current = current * 2)
   {
-  	//#pragma omp parallel for
+  	#pragma omp parallel for
   	for(left = 0; left < n-1; left += 2*current)
   	{
-  		mid = std::min(left + current -1, n-1);
-  		right = std::min(left + current*2 - 1, n-1);
+  		int mid = std::min(left + current -1, n-1);
+  		int right = std::min(left + current*2 - 1, n-1);
+		int temp_left, temp_right, temp_mid;
   		temp_left = left;
   		temp_mid = mid;
   		temp_right = right;
   		
-  		nl = temp_mid - temp_left + 1;
-  		nr = temp_right - temp_mid;
+  		int nl = temp_mid - temp_left + 1;
+  		int nr = temp_right - temp_mid;
   		
+		int *left_arr, *right_arr;
   		left_arr = (int *)malloc(sizeof(int)*nl);
   		right_arr = (int *)malloc(sizeof(int)*nr); 
+
+		int i, j, k;
   		
-  		//#pragma omp parallel for
+  		#pragma omp parallel for
   		for( i = 0; i < nl; i++)
   		{
   			left_arr[i] = arr[temp_left + i];
 		}
-		//#pragma omp parallel for
+		#pragma omp parallel for
 		for( i = 0; i < nl; i++)
   		{
   			right_arr[i] = arr[1 + temp_mid + i];
@@ -115,8 +118,6 @@ int main (int argc, char* argv[]) {
 			k++;
 		}
   	}
-  	delete[] left_arr;
-  	delete[] right_arr;
   }
   
   std::chrono::time_point<std::chrono::system_clock> end = std::chrono::system_clock::now();
