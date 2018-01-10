@@ -9,7 +9,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <chrono>
-
+#include <string.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -43,6 +43,12 @@ int main (int argc, char* argv[]) {
   }
 
   int * arr = new int [atoi(argv[1])];
+  if(arr==NULL)
+	{
+		std::cout<<"Array allocation failed";
+		return 0;
+	}
+
 
   generateMergeSortData (arr, atoi(argv[1]));
   
@@ -50,15 +56,27 @@ int main (int argc, char* argv[]) {
   int n = atoi(argv[1]);
   
   int current, left;
-  
+  char *schedule = argv[3];
+  int granularity = atoi(argv[4]);
+  omp_sched_t kind;
+
+  if(strcmp(schedule, "static")==0)
+  {
+	kind = (omp_sched_t)1;
+  }
+  else
+  {
+	kind = (omp_sched_t)2;
+  } 
   omp_set_num_threads(nbthreads);
   
+  omp_set_schedule(kind, granularity);
   
   std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
   
   for( current = 1; current <= n-1; current = current * 2)
   {
-  	#pragma omp parallel for
+  	#pragma omp parallel for 
   	for(left = 0; left < n-1; left += 2*current)
   	{
   		int mid = std::min(left + current -1, n-1);
@@ -77,12 +95,12 @@ int main (int argc, char* argv[]) {
 
 		int i, j, k;
   		
-  		#pragma omp parallel for
+  //		#pragma omp parallel for
   		for( i = 0; i < nl; i++)
   		{
   			left_arr[i] = arr[temp_left + i];
 		}
-		#pragma omp parallel for
+ //		#pragma omp parallel for
 		for( i = 0; i < nl; i++)
   		{
   			right_arr[i] = arr[1 + temp_mid + i];
@@ -117,7 +135,10 @@ int main (int argc, char* argv[]) {
 			j++;
 			k++;
 		}
+
   	}
+	//delete[] right_arr;
+	//delete[] left_arr;
   }
   
   std::chrono::time_point<std::chrono::system_clock> end = std::chrono::system_clock::now();
@@ -127,7 +148,10 @@ int main (int argc, char* argv[]) {
   std::cerr<<elapsed_seconds.count()<<std::endl;
   
   checkMergeSortResult (arr, atoi(argv[1]));
+ 
+  //std::cout<<"Reached here"<<std::endl;
   
+ 
   delete[] arr;
   
 

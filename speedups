@@ -1,0 +1,33 @@
+1. reduce
+ 
+Size of input   Threads   Time
+1X10E8		1	  0.5807
+1X10E8		16	  0.3431
+
+Speedup = 1.8
+
+2. Mergesort
+
+Size of input   Threads   Time
+1X10E9		1	  2.2578
+1X10E9		16	  0.6081
+
+Speedup = 3.7
+
+3. Longest Common Subsequence
+
+Size of input   Threads   Time
+100		1	  24.99
+100		16	  8.04
+
+Speedup = 4.1
+
+4. Bubblesort
+
+Size of input   Threads   Time
+1X10E9		1	  5.9482
+1X10E9		16	  1.4156
+
+Speedup = 4.2
+
+
